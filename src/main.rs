@@ -17,8 +17,8 @@ lazy_static! {
     };
 }
 
-#[post("/files/shiba")]
-async fn send_shiba(mut payload: Multipart, request: HttpRequest) -> HttpResponse {
+#[post("/files/shibes")]
+async fn send_shibes(mut payload: Multipart, request: HttpRequest) -> HttpResponse {
     let header = request.headers().get("Authorization");
     if header.is_none() || header.unwrap().to_str().ok() != Some(&SECRET) {
         return HttpResponse::Unauthorized().finish();
@@ -27,7 +27,7 @@ async fn send_shiba(mut payload: Multipart, request: HttpRequest) -> HttpRespons
     if let Ok(Some(mut field)) = payload.try_next().await {
         if let Some(content) = field.content_disposition() {
             if let Some(name) = content.get_filename() {
-                let path = Path::new("./files/shiba").join(sanitize_filename::sanitize(name));
+                let path = Path::new("./files/shibes").join(sanitize_filename::sanitize(name));
                 if path.exists() {
                     return HttpResponse::Conflict().finish();
                 }
@@ -53,10 +53,10 @@ async fn send_shiba(mut payload: Multipart, request: HttpRequest) -> HttpRespons
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    fs::create_dir_all("./files/shiba").ok();
+    fs::create_dir_all("./files/shibes").ok();
     HttpServer::new(|| {
         App::new()
-            .service(send_shiba)
+            .service(send_shibes)
             .service(actix_files::Files::new("/", "./files"))
     })
     .bind("127.0.0.1:8080")?
